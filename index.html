@@ -600,7 +600,116 @@
 
     ::selection { background: #30442F; color: #F5F1E8; }
   </style>
+  <style>
+    @media (max-width: 768px) {
+      /* Nav */
+      #lmc-nav { padding: 20px 20px !important; }
+      #lmc-nav > div:last-child { display: none !important; }
+      #lmc-nav::after {
+        content: '≡';
+        font-size: 22px;
+        color: #151515;
+        cursor: pointer;
+      }
+      /* Hamburger via checkbox trick — nav handled by JS below */
+
+      /* Sections */
+      section { padding: 80px 20px !important; }
+      footer { padding: 28px 20px !important; }
+
+      /* Hero */
+      section:first-of-type { padding: 0 20px !important; }
+      section:first-of-type > div:last-child { padding-bottom: 36px !important; }
+      section:first-of-type > div:last-child > div:last-child { display: none !important; }
+      #lmc-nav + section [style*="right:52px"] { display: none !important; }
+
+      /* 2-col grids → 1 col */
+      [style*="grid-template-columns:1fr 1fr"],
+      [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 40px !important;
+      }
+      [style*="grid-template-columns:repeat(3,1fr)"],
+      [style*="grid-template-columns: repeat(3, 1fr)"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Menu item rows */
+      [style*="grid-template-columns:52px 1fr 80px"] {
+        grid-template-columns: 32px 1fr 56px !important;
+        gap: 12px !important;
+      }
+
+      /* Image aspect ratios — prevent huge heights */
+      [style*="aspect-ratio:3/4"] { aspect-ratio: 4/3 !important; }
+      [style*="aspect-ratio:16/7"] { aspect-ratio: 16/9 !important; }
+      [style*="aspect-ratio:1/1"] { aspect-ratio: 16/9 !important; }
+
+      /* Footer */
+      footer > div { flex-direction: column !important; gap: 16px !important; align-items: flex-start !important; }
+    }
+
+    /* Mobile nav drawer */
+    #mobile-nav-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 199;
+      background: #F5F1E8;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+    }
+    #mobile-nav-overlay.open { display: flex; }
+    #mobile-nav-overlay a {
+      font-family: 'Shippori Mincho B1', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: #151515;
+      text-decoration: none;
+      padding: 18px 0;
+      opacity: 0.75;
+    }
+    #mobile-nav-overlay a:hover { opacity: 1; }
+    #mobile-nav-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 22px;
+      height: 14px;
+      padding: 0;
+    }
+    #mobile-nav-btn span {
+      display: block;
+      width: 100%;
+      height: 1.5px;
+      background: #151515;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    #mobile-nav-btn.open span:nth-child(1) { transform: translateY(6.25px) rotate(45deg); }
+    #mobile-nav-btn.open span:nth-child(2) { opacity: 0; }
+    #mobile-nav-btn.open span:nth-child(3) { transform: translateY(-6.25px) rotate(-45deg); }
+    [data-s] #mobile-nav-btn span { background: #151515; }
+    nav.dark-hero #mobile-nav-btn span { background: rgba(255,255,255,0.9); }
+    @media (max-width: 768px) {
+      #mobile-nav-btn { display: flex; }
+    }
+  </style>
 </helmet>
+
+<!-- Mobile nav drawer -->
+<div id="mobile-nav-overlay">
+  <a href="#" onclick="closeMobileNav()">ホーム</a>
+  <a href="#menu" onclick="closeMobileNav()">一杯</a>
+  <a href="#space" onclick="closeMobileNav()">この場所</a>
+  <a href="#wear" onclick="closeMobileNav()">纏う</a>
+  <a href="#visit" onclick="closeMobileNav()">訪れる</a>
+</div>
 
 <!-- Grain -->
 <svg style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9998;opacity:0.028" xmlns="http://www.w3.org/2000/svg">
@@ -611,6 +720,9 @@
 <!-- Nav -->
 <nav id="lmc-nav" style="position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:26px 52px;border-bottom:1px solid transparent">
   <a href="#" style="font-family:'Cormorant',serif;font-size:20px;font-weight:400;letter-spacing:0.1em;color:#151515;text-decoration:none">LMC</a>
+  <button id="mobile-nav-btn" aria-label="メニューを開く" aria-expanded="false" onclick="toggleMobileNav()">
+    <span></span><span></span><span></span>
+  </button>
   <div style="display:flex;gap:36px;align-items:center">
     <a href="#menu" style="font-family:'Space Grotesk','Noto Sans JP',sans-serif;font-size:11px;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;color:#151515;text-decoration:none;transition:opacity 0.2s" style-hover="opacity:0.4">一杯</a>
     <a href="#space" style="font-family:'Space Grotesk','Noto Sans JP',sans-serif;font-size:11px;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;color:#151515;text-decoration:none;transition:opacity 0.2s" style-hover="opacity:0.4">この場所</a>
@@ -980,6 +1092,23 @@
 </footer>
 </x-dc>
 <script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 900}}">
+window.toggleMobileNav = function() {
+  const btn = document.getElementById('mobile-nav-btn');
+  const overlay = document.getElementById('mobile-nav-overlay');
+  const isOpen = btn.classList.toggle('open');
+  btn.setAttribute('aria-expanded', isOpen);
+  overlay.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+};
+window.closeMobileNav = function() {
+  const btn = document.getElementById('mobile-nav-btn');
+  const overlay = document.getElementById('mobile-nav-overlay');
+  btn.classList.remove('open');
+  btn.setAttribute('aria-expanded', 'false');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+};
+
 class Component extends DCLogic {
   componentDidMount() {
     const observer = new IntersectionObserver(

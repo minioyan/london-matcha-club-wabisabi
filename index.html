@@ -631,6 +631,15 @@
       section:first-of-type > div:last-child > div:last-child { display: none !important; }
       #lmc-nav + section [style*="right:52px"] { display: none !important; }
 
+      /* Hero display text — reduce min font size for mobile */
+      [style*="font-size:clamp(58px,8.2vw,124px)"] {
+        font-size: clamp(36px, 10.5vw, 58px) !important;
+      }
+      /* Remove the indent on 「儚くて、」 line */
+      [style*="padding-left:clamp(60px,9vw,148px)"] {
+        padding-left: 0 !important;
+      }
+
       /* 2-col grids → 1 col */
       [style*="grid-template-columns:1fr 1fr"],
       [style*="grid-template-columns: 1fr 1fr"] {
